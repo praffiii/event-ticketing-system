@@ -54,7 +54,8 @@ const startConsumer = async () => {
         channel.ack(msg);
       } catch (error) {
         console.error("Failed to process notification message:", error.message);
-        channel.nack(msg, false, true);
+        // Drop malformed messages to avoid an infinite redelivery loop.
+        channel.nack(msg, false, false);
       }
     });
 
