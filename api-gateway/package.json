@@ -1,0 +1,21 @@
+{
+  "name": "api-gateway",
+  "version": "1.0.0",
+  "description": "API Gateway for the Event Ticketing System.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "express-rate-limit": "^7.5.1",
+    "http-proxy-middleware": "^3.0.5",
+    "morgan": "^1.10.1"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs"
+}

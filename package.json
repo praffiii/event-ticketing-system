@@ -1,0 +1,24 @@
+{
+  "name": "event-ticketing-system",
+  "version": "1.0.0",
+  "description": "Event Ticketing System backend using a microservice-style architecture.",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && npm --prefix api-gateway install && npm --prefix auth-service install && npm --prefix event-service install && npm --prefix order-service install && npm --prefix notification-service install",
+    "dev": "concurrently \"npm --prefix api-gateway run dev\" \"npm --prefix auth-service run dev\" \"npm --prefix event-service run dev\" \"npm --prefix order-service run dev\" \"npm --prefix notification-service run dev\"",
+    "start": "concurrently \"npm --prefix api-gateway start\" \"npm --prefix auth-service start\" \"npm --prefix event-service start\" \"npm --prefix order-service start\" \"npm --prefix notification-service start\""
+  },
+  "keywords": [
+    "event-ticketing",
+    "microservice",
+    "express",
+    "sequelize",
+    "rabbitmq"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "type": "commonjs"
+}
