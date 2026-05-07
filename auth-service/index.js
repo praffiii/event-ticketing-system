@@ -1,6 +1,9 @@
 require("dotenv").config();
 
 const express = require("express");
+const sequelize = require("./config/database");
+require("./models/User");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -27,6 +30,20 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Auth Service running on port ${port}`);
-});
+app.use("/auth", authRoutes);
+
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync();
+
+    app.listen(port, () => {
+      console.log(`Auth Service running on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Failed to start Auth Service:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
