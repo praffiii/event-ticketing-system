@@ -12,6 +12,7 @@ const logOrderCreatedNotification = (message) => {
 
   const {
     orderId,
+    userName,
     userEmail,
     eventTitle,
     ticketType,
@@ -20,7 +21,7 @@ const logOrderCreatedNotification = (message) => {
   } = message.data;
 
   console.log(
-    `Notification: order #${orderId} created by ${userEmail} for ${quantity} ${ticketType} ticket(s) to ${eventTitle}. Total: ${totalPrice}`
+    `Notification: User ${userName} (${userEmail}) ordered ${quantity} ${ticketType} ticket(s) for ${eventTitle}. Order #${orderId}, Total: ${totalPrice}`
   );
 };
 
@@ -54,8 +55,8 @@ const startConsumer = async () => {
         channel.ack(msg);
       } catch (error) {
         console.error("Failed to process notification message:", error.message);
-        // Drop malformed messages to avoid an infinite redelivery loop.
-        channel.nack(msg, false, false);
+        // Requeue the message so it can be retried after a transient failure.
+        channel.nack(msg, false, true);
       }
     });
 

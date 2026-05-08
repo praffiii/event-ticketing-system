@@ -23,6 +23,9 @@ const publishOrderCreated = async (data) => {
     });
 
     await channel.close();
+  } catch (error) {
+    console.error("RabbitMQ publish error:", error.message);
+    throw error;
   } finally {
     if (connection) {
       await connection.close();
