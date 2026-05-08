@@ -1,22 +1,18 @@
 require("dotenv").config();
 
 const express = require("express");
-const morgan = require("morgan");
-const rateLimit = require("express-rate-limit");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const logger = require("./middleware/logger");
+const rateLimiter = require("./middleware/rateLimiter");
 
 const app = express();
 const port = process.env.PORT || 3000;
+const authServiceUrl = process.env.AUTH_SERVICE_URL || "http://localhost:3001";
+const eventServiceUrl = process.env.EVENT_SERVICE_URL || "http://localhost:3002";
+const orderServiceUrl = process.env.ORDER_SERVICE_URL || "http://localhost:3003";
 
-const limiter = rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
-  max: Number(process.env.RATE_LIMIT_MAX) || 100,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-app.use(morgan("dev"));
-app.use(limiter);
-app.use(express.json());
+app.use(logger);
+app.use(rateLimiter);
 
 app.get("/", (req, res) => {
   res.json({
@@ -35,6 +31,44 @@ app.get("/health", (req, res) => {
     data: {
       status: "ok"
     }
+  });
+});
+
+const proxyErrorHandler = (serviceName) => {
+  return (err, req, res) => {
+    console.error(`${serviceName} proxy error:`, err.message);
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: `${serviceName} is unavailable`,
+        errors: []
+      });
+    }
+  };
+};
+
+const createServiceProxy = (target, serviceName) => {
+  return createProxyMiddleware({
+    target,
+    changeOrigin: true,
+    pathRewrite: (path, req) => req.originalUrl,
+    on: {
+      error: proxyErrorHandler(serviceName)
+    }
+  });
+};
+
+app.use("/auth", createServiceProxy(authServiceUrl, "Auth Service"));
+app.use("/events", createServiceProxy(eventServiceUrl, "Event Service"));
+app.use("/ticket-types", createServiceProxy(eventServiceUrl, "Event Service"));
+app.use("/orders", createServiceProxy(orderServiceUrl, "Order Service"));
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    errors: []
   });
 });
 
