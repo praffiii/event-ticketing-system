@@ -79,6 +79,7 @@ const createOrder = async (req, res) => {
       createdOrder = await Order.create(
         {
           userId: req.user.id,
+          userName: req.user.name,
           userEmail: req.user.email,
           ticketTypeId: ticketType.id,
           quantity: orderQuantity,
@@ -90,6 +91,7 @@ const createOrder = async (req, res) => {
 
       notificationData = {
         orderId: createdOrder.id,
+        userName: req.user.name,
         userEmail: req.user.email,
         eventTitle: ticketType.event.title,
         ticketType: ticketType.name,
